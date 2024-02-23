@@ -1,4 +1,5 @@
 using API.Data;
+using API.DTOS;
 using API.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +15,25 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<Basket>> GetBasket()
+        public async Task<ActionResult<BasketDto>> GetBasket()
         {
             var basket=await RetrieveBasket();
 
             if(basket == null) return NotFound();
-            return basket;
+            return new BasketDto{
+                Id=basket.Id,
+                BuyerId=basket.BuyerId,
+                Items=basket.Items.Select(x=>new BsketItemDto{
+                    ProductId=x.Product.Id,
+                    Name=x.Product.Name,
+                    Price=x.Product.Price,
+                    PictureUrl=x.Product.PictureUrl,
+                    Brand=x.Product.Brand,
+                    Type=x.Product.Type,
+                    Quantity=x.Quantity
+                }).ToList()
+            
+            };
 
         }
 
@@ -52,7 +66,13 @@ namespace API.Controllers
 
         [HttpDelete]
         public async Task<ActionResult> DeleteItemFromBasket(int productId,int quantity){
-            return Ok();
+            var basket = await RetrieveBasket();
+            if(basket == null) return NotFound();
+     
+            basket.RemoveItem(productId,quantity);
+            var result = await _context.SaveChangesAsync()>0;
+            if(result)  return StatusCode(201);
+            return BadRequest(new ProblemDetails{Title="Problem removing item from basket"});
         }   
 
         private async Task<Basket> RetrieveBasket()
