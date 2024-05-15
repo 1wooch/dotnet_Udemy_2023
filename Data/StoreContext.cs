@@ -22,7 +22,7 @@ namespace API.Data
                 //Set the Roles
                 new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" },
                 new IdentityRole { Name = "Member", NormalizedName = "MEMBER" }
-            )
+            );
         }
     }
 }
