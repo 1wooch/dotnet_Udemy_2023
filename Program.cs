@@ -18,7 +18,12 @@ builder.Services.AddDbContext<StoreContext>(opt =>
 });
 builder.Services.AddCors();
 
-builder.Services.AddIdentityCore<User>()
+builder.Services.AddIdentityCore<User>(opt=>{
+    //complexity of creating user condition can be design on here
+    //e.g. easy password, require digit, require non-alphanumeric, require lower case, require upper case
+    opt.User.RequireUniqueEmail = true; // this is to make sure that the email is unique
+    
+})
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
 
